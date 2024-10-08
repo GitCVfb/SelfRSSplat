@@ -1,0 +1,129 @@
+import os
+import torch
+import random
+import argparse
+import numpy as np
+from skimage import io
+import shutil
+
+import imageio
+import cv2
+import flow_viz
+
+from package_core.generic_train_test import *
+from dataloader import *
+from frame_utils import *
+from model_SelfRSSR import *
+
+##===================================================##
+##********** Configure training settings ************##
+##===================================================##
+parser=argparse.ArgumentParser()
+parser.add_argument('--batch_sz', type=int, default=1, help='batch size used for training')
+parser.add_argument('--continue_train', type=bool, default=True, help='flags used to indicate if train model from previous trained weight')
+parser.add_argument('--is_training', type=bool, default=False, help='flag used for selecting training mode or evaluation mode')
+parser.add_argument('--seq_len', type=int, default=2)
+parser.add_argument('--shuffle_data', type=bool, default=False)
+parser.add_argument('--img_H', type=int, default=260, help='cropped image size height')
+parser.add_argument('--crop_sz_W', type=int, default=640, help='cropped image size width')
+
+parser.add_argument('--model_label', type=str, required=True)
+parser.add_argument('--log_dir', type=str, required=True)
+parser.add_argument('--results_dir', type=str, required=True)
+parser.add_argument('--data_dir', type=str, required=True)
+
+parser.add_argument('--test_pretrained_VFI', type=bool, default=False)#whethre test pretrained GS-based VFI model
+parser.add_argument('--gamma', type=float, default=0.67, help='readout time ratio')
+
+parser.add_argument('--is_GevRS', type=int, default=10)#30
+
+opts=parser.parse_args()
+
+##===================================================##
+##****************** Create model *******************##
+##===================================================##
+model=Model(opts)
+
+##===================================================##
+##**************** Train the network ****************##
+##===================================================##
+class Demo(Generic_train_test):
+    def test(self):
+        with torch.no_grad():
+            seq_lists = os.listdir(self.opts.data_dir)
+            for seq in seq_lists:
+                im_rs0_path = os.path.join(os.path.join(self.opts.data_dir, seq), 'rs_0.png')
+                im_rs1_path = os.path.join(os.path.join(self.opts.data_dir, seq), 'rs_1.png')
+                #optiflow_path = os.path.join(os.path.join(self.opts.data_dir, seq), 'flow_raft.flo')
+
+                im_rs0 = torch.from_numpy(io.imread(im_rs0_path).transpose(2,0,1))[:3,:,:].unsqueeze(0).clone()
+                im_rs1 = torch.from_numpy(io.imread(im_rs1_path).transpose(2,0,1))[:3,:,:].unsqueeze(0).clone()
+                #optiflow = torch.from_numpy(readFlow(optiflow_path).transpose(2,0,1)).unsqueeze(0).clone().float()
+
+                im_rs = torch.cat([im_rs0,im_rs1], dim=1).float()/255.
+                
+                if self.opts.is_GevRS==1 or self.opts.is_GevRS==2:
+                    im_rs0 = F.interpolate(im_rs[:,0:3,:,:],size=[256,320], mode='bilinear')#1, 2
+                    im_rs1 = F.interpolate(im_rs[:,3:6,:,:],size=[256,320], mode='bilinear')#
+                    im_rs  = torch.cat((im_rs0,im_rs1),1).clone()#
+
+                if self.opts.is_GevRS==3 or self.opts.is_GevRS==4:
+                    im_rs0 = F.interpolate(im_rs[:,0:3,:,:],size=[432,768], mode='bilinear')#3, 4
+                    im_rs1 = F.interpolate(im_rs[:,3:6,:,:],size=[432,768], mode='bilinear')#
+                    im_rs  = torch.cat((im_rs0,im_rs1),1).clone()#
+
+                _input = [im_rs, None, None, None]
+                
+                self.model.set_input(_input)
+                
+                # save original RS images
+                im_rs_0 = io.imread(im_rs0_path)
+                im_rs_1 = io.imread(im_rs1_path)
+                io.imsave(os.path.join(self.opts.results_dir, seq+'_rs_0.png'), im_rs_0)
+                io.imsave(os.path.join(self.opts.results_dir, seq+'_rs_1.png'), im_rs_1)
+                
+                # generate GS images for any row
+                preds_0=[]
+                preds_0_tensor=[]
+                copies = 11
+                for t in range(0, copies):
+                    #convert to GS of t-th moment
+                    pred_gs_t = self.model.GS_syn(t/(copies-1) - self.opts.gamma/2, self.opts.gamma)
+                    
+                    if self.opts.is_GevRS==1 or self.opts.is_GevRS==2:
+                        pred_gs_t = F.interpolate(pred_gs_t, size=[260,346], mode='bilinear')#1, 2
+
+                    if self.opts.is_GevRS==3 or self.opts.is_GevRS==4:
+                        pred_gs_t = F.interpolate(pred_gs_t, size=[720,1280], mode='bilinear')#3, 4
+                    
+                    # save results
+                    io.imsave(os.path.join(self.opts.results_dir, seq+'_pred_'+str(t)+'.png'), (pred_gs_t.clamp(0,1).cpu().numpy().transpose(0,2,3,1)[0]*255).astype(np.uint8))
+                    
+                    preds_0.append((pred_gs_t.clamp(0,1).cpu().numpy().transpose(0,2,3,1)[0]*255).astype(np.uint8))
+                    preds_0_tensor.append(pred_gs_t)
+
+                    print('saved', self.opts.results_dir, seq+'_pred_'+str(t)+'.png')
+                    
+                    
+                pred_imgs_rec=preds_0_tensor
+                img_rec = pred_imgs_rec[0].clone()
+                for t in range(1,copies):
+                    img_rec *= (pred_imgs_rec[t] * 255)
+                    img_rec = img_rec.clamp(0,1)
+                
+                #cv2.imwrite('images/input_overlay_imgs.png', img_rec.clamp(0,1).cpu().numpy().transpose(0,2,3,1)[0]*255)
+                
+                #make gif
+                make_gif_flag = True
+                if make_gif_flag:
+                    pred_imgs_gif=preds_0
+                    
+                    #imageio.mimsave(os.path.join(self.opts.results_dir, seq+'_duration_'+str(0.5)+'.gif'), pred_imgs_gif, duration = 0.5) # modify the frame duration as needed
+                    imageio.mimsave(os.path.join(self.opts.results_dir, seq+'_duration_'+str(0.1)+'.gif'), pred_imgs_gif, duration = 0.1) # modify the frame duration as needed
+                
+                print('\n')
+                
+                              
+Demo(model, opts, None, None).test()
+
+
