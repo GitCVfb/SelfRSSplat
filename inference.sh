@@ -13,7 +13,7 @@ bsrsc_dataset_type=BSRSC
 bsrsc_root_path_test_data=/data/local_userdata/fanbin/raw_data/BSRSC/test/
 
 dir_pretrained_GS=../deep_unroll_weights/Pretrained/pretrain_vfi/
-results_dir=/home/fanbin/fan/SelfSoftSplat/deep_unroll_results/
+results_dir=/home/fanbin/fan/SelfRSSplat/deep_unroll_results/
 
 model_dir_carla=../deep_unroll_weights/pre_carla_ft/
 model_dir_faste=../deep_unroll_weights/pre_fastec_ft/
