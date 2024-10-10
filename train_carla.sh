@@ -5,8 +5,8 @@
 carla_dataset_type=Carla
 carla_root_path_training_data=/data/local_userdata/fanbin/raw_data/carla/data_train/train/
 
-log_dir_pretrained_GS=/home/fanbin/fan/SelfSoftSplat/deep_unroll_weights/Pretrained/pretrain_vfi/
-log_dir=/home/fanbin/fan/SelfSoftSplat/deep_unroll_weights/
+log_dir_pretrained_GS=/home/fanbin/fan/SelfRSSplat/deep_unroll_weights/Pretrained/pretrain_vfi/
+log_dir=/home/fanbin/fan/SelfRSSplat/deep_unroll_weights/
 #
 cd deep_unroll_net
 
