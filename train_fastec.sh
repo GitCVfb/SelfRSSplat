@@ -6,8 +6,8 @@
 fastec_dataset_type=Fastec
 fastec_root_path_training_data=/data/local_userdata/fanbin/raw_data/faster/data_train/train/
 
-log_dir_pretrained_GS=/home/fanbin/fan/SelfSoftSplat/deep_unroll_weights/Pretrained/pretrain_vfi/
-log_dir=/home/fanbin/fan/SelfSoftSplat/deep_unroll_weights/
+log_dir_pretrained_GS=/home/fanbin/fan/SelfRSSplat/deep_unroll_weights/Pretrained/pretrain_vfi/
+log_dir=/home/fanbin/fan/SelfRSSplat/deep_unroll_weights/
 #
 cd deep_unroll_net
 
