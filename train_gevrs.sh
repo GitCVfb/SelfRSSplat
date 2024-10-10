@@ -6,8 +6,8 @@ gevsc_dataset_type=GevRSReal
 gevsc_root_path_training_data=/data/local_userdata/fanbin/raw_data/Gev-RS-Real/01/
 #01_001435_032300: (20, 121-seq_len+1)        0.67        346*260
 
-log_dir_pretrained_GS=/home/fanbin/fan/SelfSoftSplat/deep_unroll_weights/Pretrained/pretrain_vfi/
-log_dir=/home/fanbin/fan/SelfSoftSplat/deep_unroll_weights/
+log_dir_pretrained_GS=/home/fanbin/fan/SelfRSSplat/deep_unroll_weights/Pretrained/pretrain_vfi/
+log_dir=/home/fanbin/fan/SelfRSSplat/deep_unroll_weights/
 #
 cd deep_unroll_net
 
