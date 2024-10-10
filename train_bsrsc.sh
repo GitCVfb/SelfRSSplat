@@ -5,8 +5,8 @@
 bsrsc_dataset_type=BSRSC
 bsrsc_root_path_training_data=/data/local_userdata/fanbin/raw_data/BSRSC/train/
 
-log_dir_pretrained_GS=/home/fanbin/fan/SelfSoftSplat/deep_unroll_weights/Pretrained/pretrain_vfi/
-log_dir=/home/fanbin/fan/SelfSoftSplat/deep_unroll_weights/
+log_dir_pretrained_GS=/home/fanbin/fan/SelfRSSplat/deep_unroll_weights/Pretrained/pretrain_vfi/
+log_dir=/home/fanbin/fan/SelfRSSplat/deep_unroll_weights/
 #
 cd deep_unroll_net
 
