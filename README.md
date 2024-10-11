@@ -60,7 +60,7 @@ sh inference.sh
 ```
 
 ## Citations
-Please cite our paper if necessary:
+If you find our SelfRSSplat useful in your research or applications, please consider giving us a star 🌟 and citing it by the following BibTeX entry.
 ```
 @article{fan2024self,
 	title={Self-supervised learning for rolling shutter temporal super-resolution},
