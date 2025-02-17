@@ -62,7 +62,7 @@ sh inference.sh
 ## Citations
 If you find our SelfRSSplat useful in your research or applications, please consider giving us a star 🌟 and citing it by the following BibTeX entry.
 ```
-@article{fan2024self,
+@article{fan2025self,
 	title={Self-supervised learning for rolling shutter temporal super-resolution},
 	author={Fan, Bin and Guo, Ying and Dai, Yuchao and Xu, Chao and Shi, Boxin},
 	journal={IEEE Transactions on Circuits and Systems for Video Technology},
