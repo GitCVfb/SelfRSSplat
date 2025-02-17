@@ -66,7 +66,10 @@ If you find our SelfRSSplat useful in your research or applications, please cons
 	title={Self-supervised learning for rolling shutter temporal super-resolution},
 	author={Fan, Bin and Guo, Ying and Dai, Yuchao and Xu, Chao and Shi, Boxin},
 	journal={IEEE Transactions on Circuits and Systems for Video Technology},
-	year={2024},
+	year={2025},
+        volume={35},
+        number={1},
+        pages={769-782},
 	publisher={IEEE}
 }
 ```
